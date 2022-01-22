@@ -3,7 +3,6 @@
 Created on Thu Nov 18 22:18:46 2021
 Wellenfront Licht
 
-
 @author:
 
 Beschreibung:
@@ -23,14 +22,12 @@ print(datetime.today())
 from mpl_toolkits import mplot3d
 
 
-
 "Thorlabs WFS-150 Konstanten"
 Pixelsize=4.65 #pixel size in µm
 Resolution=[1280,1024] 
 Lenslets=[39,31]#number of Lenslets
 LensPitch = 150 #in µm
 FocalLength = 5000 # in µm = 5mm
-
 
 "Define arrays"
 ia =                  np.empty([Lenslets[0], Lenslets[1]])
@@ -44,12 +41,7 @@ lz_x =                np.empty([Lenslets[0], Lenslets[1]])
 lz_y =                np.empty([Lenslets[0], Lenslets[1]])
 WF_x=                 np.empty([Lenslets[0], Lenslets[1]])
 WF_y=                 np.empty([Lenslets[0], Lenslets[1]])
-WF =                  np.empty([Lenslets[0], Lenslets[1]])
-
-
-Nx = np.linspace(0, 39, 39)
-Ny = np.linspace(0, 39, 39)
-[xxx,yyy]=np.meshgrid(Nx,Ny, sparse=True)
+WF =                  np.empty([Lenslets[0]-1, Lenslets[1]-1])
 
 
 
@@ -137,7 +129,7 @@ for i in range (0,Lenslets[0]-1):
         b+=32
     a+=32
 
-"Contour-Plot"
+"Scatter-Plot"
 plt.title('Array mit Schwerpunktskoordinaten')
 plt.xlabel('x')
 plt.ylabel('y')
@@ -166,7 +158,7 @@ np.savetxt("delta_y in µm from "+str(date_time)+".txt", Delta_y_array_in_m)
 ""
 
 
-
+"Integration"
 for j in range (0,Lenslets[1]-1):
     WF_x[0,j]=lz_x[0,j]
     for i in range (1,Lenslets[0]-1):
@@ -179,37 +171,22 @@ for i in range (0,Lenslets[0]-1):
         WF_y[i,j]=lz_y[i,j]+WF_y[i,j-1]
 
 
-for i in range (0,Lenslets[0]-1):
-    for j in range (0,Lenslets[1]-1):
+for i in range (0,Lenslets[0]-2):
+    for j in range (0,Lenslets[1]-2):
         WF[i,j] = WF_x[i,j] + WF_y[i,j]
         if WF [i,j]>=50:
             WF [i,j]=50
+            print('Fehler')
 
 
-Xg=np.linspace (1, 31, 31)
-Yg=np.linspace (1, 39, 39)
-
+"Surface-Plot"
+Xg=np.linspace (1, Lenslets[1]-1, Lenslets[1]-1)
+Yg=np.linspace (1, Lenslets[0]-1, Lenslets[0]-1)
 XXg, YYg = np.meshgrid(Xg,Yg)
-
-
-
-
 fig = plt.figure()
 ax = plt.axes(projection='3d')
-
 ax.plot_surface(XXg, YYg, WF,cmap='viridis', edgecolor='none')
-ax.set_title('Surface plot')
+ax.set_title('Surface plot Wellenfront in µm')
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
 
 print('Program finished. 100 %')
