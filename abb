@@ -1,0 +1,706 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage[scaled]{uarial}
+\usepackage{listings}
+\lstset{numbers=left, 
+	numberstyle=\tiny, 
+	numbersep=5pt, 
+	frame = single, 
+	language=Pascal, 
+	framexleftmargin=15pt}
+\lstset{language=Perl}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage[onehalfspacing]{setspace}
+\usepackage{geometry}
+\geometry{
+	left=2.5cm,
+	right=2.5cm,
+	bottom=4cm}
+
+\usepackage{titling}
+\newcommand{\subtitle}[1]{%
+	\posttitle{%
+		\par\end{center}
+	\begin{center}\large#1\end{center}
+	\vskip0.5em}%
+}
+
+\pagestyle{empty}
+	
+\title{Wellenfrontmessung und Rekonstruktion mit Shack-Hartmann-Sensor}	
+\subtitle{Abschlussbericht Projekt 1\\Hochschule Bremen\\Prof. Dr. Friedrich Fleischmann, Prof. Dr. David Hilbig\\WiSe 21/22}
+\author{von\\Wieland Borchardt\\Farshid Mohammadi Mofrad Abdehgah\\Jimmy Taguegou Tonfack Bakou\\Muhammad Fauzan Dzulfikar\\Rinor Bllaca}
+\date{1.3.2022}
+\begin{document}
+\begin{titlepage}
+
+
+\maketitle
+\thispagestyle{empty}
+
+
+\end{titlepage}
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+
+
+
+
+\pagestyle{plain}
+\setcounter{page}{1}
+
+
+\section{Einleitung} 
+In diesem Projekt soll die Wellenfront von Lichtwellen gemessen und rekonstruiert werden. Dazu diente ein Shack-Hartmann-Wellenfrontsensor (WFS150) der Firma Thorlabs GmbH. Die Berechnung und Rekonstruktion der Wellenfront kann mit der integrierten Software von Thorlabs durchgeführt werden. Die Berechnung der Messung von Thorlabs diente als Referenz, da das Ziel war, eine eigene Wellenfrontrekonstruktion durchzuführen. Dazu wurde ein eigenes Programm mit der Programmiersprache Python geschrieben, welches aus einem aufgenommenen Kamerabild (Spotfield) die Wellenfront rekonstruiert. Schließlich konnte dann aus der Wellenfront der Krümmungsradius von dieser bestimmt werden.
+
+
+\section{Versuchsaufbau und Messung} 
+\subsection{Aufbau und Funktionsweise des Shack-Hartmann Sensor} 
+
+Ein Shack-Hartmann Sensor besteht aus einem Array von Mikrolinsen und einem Bildsensor (CCD-Sensor). Fällt nun eine Lichtwelle aus das Linsenarray, dann wird die Lichtwelle durch die jeweilige Mikrolinse gebündelt und trifft im Abstand der Brennweite auf den CCD-Kamera-Sensor. Fällt der Lichtstrahl senkrecht auf die Linse, dann liegt der Brennpunkt genau im Mittelpunkt der Linse. Fällt dagegen der Lichtstrahl in einen Verkippungswinkel auf die Linse, dann liegt auch der Brennpunkt nicht im Mittelpunkt, sondern je nach Winkel verschieden weit von dem Mittelpunkt entfernt auf dem CCD-Sensor. Dieser Effekt wird bei dem Shack-Hartmann-Wellenfrontsensor genutzt um so die Krümmung der einfallenden Wellenfront zu bestimmen. Eine Lichtwellenfront erzeugt auf dem CCD-Sensor insgesamt ein Muster an Punkten, dieses Muster ist charakteristisch für die Wellenfront und aus dem Muster kann die Wellenfront rekonstruiert werden.
+
+Ein planare Wellenfront, die nicht gekrümmt ist und auf den Wellenfrontsensor ohne Neigung auftrifft, führt zu einer gleichmäßigen Verteilung der Lichtpunkt auf dem CCD-Sensor. Eine verzerrte, gekrümmte oder geneigte Wellenfront führt dagegen zu einer (un-)regelmäßigen verzerrten Verteilung der Lichtpunkte. Die Abbildung 2 zeigt die Funktionsweise und dieses beschriebene Verhalten einmal beispielhaft. Mit den technischen Werten des Sensors kann aus dem Abstand des Lichtpunktes zum Mittelpunkt jeweils die Verschiebung, der Winkel und somit die Steigung der Wellenfront berechnet werden. Durch Integration kann aus der Steigung die ursprüngliche Wellenfront rekonstruiert werden. Diese wird 2-dimensional dargestellt.
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=7cm]{Bilder/669.png}
+		\caption{Shack-Hartmann Sensor [1]}
+		\label{Displaced Dot8}	
+	\end{center}
+\end{figure}
+
+
+
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=7cm]{Bilder/1.png}
+		\caption{Funktionsweise Shack-Hartmann Sensor [2]}
+		\label{Displaced Dot}	
+	\end{center}
+\end{figure}
+\clearpage
+\subsection{Technische Daten WFS-150} 
+Der Shack-Hartmann-Sensor WFS-150 besteht aus einem Mikrolinsen-Array mit 39x31 Linsen, welche eine Brennweite von 5 mm besitzen. Die Brennweite wird im Weiteren mit $f_l$ bezeichnet, gemeint ist dabei die Brennweite der Mikrolinsen. Die Linsen haben eine Höhe von 150 µm. Die Höhe wird mit $p_l$ bezeichnet. Der CCD-Sensor hat 1280x1024 Pixel für ein Bild. Die Größe eines Pixels liegt bei 4,65x4,65 µm. Insgesamt liegt der Bereich der Wellenlänge der zu messenden Welle zwischen 400 und 900 nm, also im sichtbaren Frequenzspektrum.
+
+
+\subsection{Versuchsaufbau}
+Für den Versuchsaufbau war ein Laser mit einer Wellenlänge von 633 nm die Lichtquelle. Er besitzt eine Strahlaufweitung. In dem Lichtstrahl befindet sich eine Linse mit einer Brennweite von 40 mm. Dann trifft das Licht, nach einem Spiegel, auf den Shack-Hartmann Sensor. Der Shack-Hartmann Sensor  befindet sich 7,8 cm hinter dem Spiegel. Für den Versuchsaufbau mit Probekörper (als Probekörper wurde eine Linse mit Brennweite von 200 mm benutzt) wurde der Probekörper 4,5 cm hinter dem Spiegel und vor dem Shack-Hartmann Sensor platziert.
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=8cm]{Bilder/2212.png}
+		\caption{Versuchsaufbau}
+		\label{bild_gesicht1}	
+	\end{center}
+\end{figure}
+
+
+\clearpage
+\subsection{Messung}
+
+Es wurden zwei Messungen durchgeführt. Die erste Messung ohne Probekörper
+und die zweite mit Probekörper. In der Thorlabs-Software wurden gleichzeitig die Wellenfront aufgenommen, sowie die Schwerpunktkoordinaten und das Spotfield. Auf dem Spotfield der Messung mit Probekörper besitzen die Spots in der Mitte eine stärkere Intensität und sind heller (rechts). Ohne Probekörper sind die Spots gleichmäßiger verteilt (links). Sie ergeben ein, mit nur leichter Abweichung von +- 0,35 µm eine planare Wellenfront. Mit Probekörper ist die Wellenfront gekrümmt.
+\begin{figure}[ht]
+	\begin{center}
+	\begin{minipage}[t]{0.45\linewidth}	
+	
+		\includegraphics[width=7cm]{Bilder/112o.jpg}
+		\caption{Spotfield ohne Probekörper}
+		\label{bild_gesicht2}	
+		
+	\end{minipage}
+\hfill
+	\begin{minipage}[t]{0.45\linewidth}		
+		
+		
+		\includegraphics[width=7cm]{Bilder/spmp.jpg}
+		\caption{Spotfield mit Probekörper}
+		\label{bild_gesicht3}
+		
+		
+		
+		
+	\end{minipage}
+	\end{center}
+\end{figure}
+
+
+
+
+
+
+
+\begin{figure}[ht]
+	\begin{center}
+	\begin{minipage}[t]{0.45\linewidth}	
+		
+		\includegraphics[width=7cm]{Bilder/112.png}
+		\caption{Messung Wellenfront ohne Probekörper}
+		\label{bild_gesicht4}	
+		
+		
+	\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\linewidth}	
+	
+	\includegraphics[width=7cm]{Bilder/332.png}
+	\caption{Messung Wellenfront mit Probekörper}
+	\label{bild_gesicht5}
+		
+\end{minipage}	
+		
+	\end{center}
+\end{figure}
+
+Die annähernd planare Wellenfront erscheint im Vergleich zur gekrümmten Wellenfront stärker verzerrt, da die Skalierung anders ist. Die Abbildung 8 zeigt einmal den realen Messaufbau.
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=8cm]{Bilder/6543.png}
+		\caption{Messaufbau im Laborraum}
+		\label{bild_gesicht31}	
+	\end{center}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\clearpage
+\section{Schwerpunktbestimmung} 
+
+\subsection{Erzeugung künstlicher Intensitätsverteilungen}
+Zur Bestimmung der Wellenfront wurde angefangen künstliche Intensitätsverteilungen zu simulieren. Diese hatten zunächst nichts mit der Messung der Wellenfront zu tun, sondern dienten zur Erstellung und Überprüfung des Programmcodes. Zunächst wurde von einem einzigen Lichtpunkt ausgegangen. Er sollte sein Maximum genau im Koordinatenursprung haben. Die modellierte Funktion stellt die Intensitätsverteilung des Lichtpunktes auf dem CCD-Sensor dar. Dadurch ergibt sich direkt eine zweidimensionale Funktion, da so die Funktion die Intensität auf dem CCD-Sensor wiedergibt. Als Modellfunktion wurde die zweidimensionale Gauß-Verteilung benutzt.
+\begin{eqnarray}
+	I (x,y) =  \mathrm{e}^{-(x^2+y^2)}
+\end{eqnarray}
+Die folgende Abbildungen zeigen die Gauß-Funktion. Einmal als Kontur und einmal als Oberfläche.
+\begin{figure}[ht]
+	\begin{center}
+		\begin{minipage}[t]{0.45\linewidth}
+		
+		\includegraphics[width=6cm]{Bilder/34.png}
+		\caption{Intensität Gauß-Verteilung, Kontur}
+		\label{bild_gesicht6}	
+	\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\linewidth}
+\includegraphics[width=6cm]{Bilder/33.png}
+\caption{Intensität Gauß-Verteilung, Oberfläche}
+\label{bild_gesicht7}
+	\end{minipage}
+
+	\end{center}
+\end{figure}
+
+
+\clearpage
+
+
+
+Das Intensitätsmaximum der Gauß-Verteilung liegt bei x=0 und y=0. Das Maximum kann durch Differentialrechnung bestimmt werden oder aber in diesem Fall durch Betrachtung der Symmetrieeigenschaften der Funktion, denn die Funktion ist symmetrisch und nur bei (0,0) wird der Exponent maximal, ergo die gesamte Funktion. Dieses Ergebnis soll ebenfalls das Python-Programm liefern. Im Weiteren wurden dann Intensitätsverteilungen generiert mit mehreren Lichtpunkten. Dazu wurden mehrere Gauß-Verteilungen mit jeweils unterschiedlichen Verschiebungen des Maximums überlagert. Hier soll das Python-Programm alle Maximas erkennen und bestimmen.
+
+\begin{figure}[ht]
+	\begin{center}
+		
+		\begin{minipage}[t]{0.45\linewidth}
+			
+			
+		\includegraphics[width=6cm]{Bilder/322.png}
+		\caption{Intensität mehrere Gauß-Verteilungen, Kontur}
+		\label{bild_gesicht8}
+	\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\linewidth}
+		
+		\includegraphics[width=6cm]{Bilder/321.png}
+		\caption{Intensität mehrere Gauß-Verteilungen, Oberfläche}
+		\label{bild_gesicht9}	
+		
+		
+\end{minipage}			
+	\end{center}
+\end{figure}
+
+Schließlich wurde das Vorgehen verallgemeinert, sodass beliebig viele Lichtpunkte existieren können. In dem Versuch ist die Anzahl der Lichtpunkte durch die Anzahl an Mikrolinsen festgelegt, also maximal 1209 Lichtpunkte. Folglich wird auch die Schwerpunktberechnung 1209 mal durchgeführt.
+ 
+\clearpage
+\subsection{Bestimmung des Zentrums der Verteilung mittels Schwerpunktberechnung}
+Die Bestimmung des Zentrums der Intensitätsverteilung wurde mittels klassischer Schwerpunktberechnung durchgeführt. Dabei kann der Anteil in x-Richtung und der Anteil in y-Richtung getrennt betrachtet werden. Hier wird im folgenden nur auf die x-Richtung eingegangen, analoge Überlegungen ergeben gleiche Formeln für y-Richtung. Folgende Formel zeigt die Berechnung der Schwerpunktkoordinate $x_s$.
+
+\begin{eqnarray}
+	x_s = \frac{\int_{a}^{b} x \cdot f(x)  \mathrm{d} x }{\int_{a}^{b}  f(x) \mathrm{d} x}
+\end{eqnarray}
+
+In diesem Fall wurde statt der integralen Schreibweise für den kontinuierlichen Fall die Schreibweise mit Summenzeichen für den diskreten Fall verwendet, da die Kamera ein Bild mit diskreten Werten liefert und so auch mit diskreten Werten gerechnet worden ist.
+
+\begin{eqnarray}
+	x_s = \frac{\sum_{i=1}^{n}x_i \cdot f_i }{\sum_{i=1}^{n} f_i}
+\end{eqnarray}
+Dabei entspricht der Nenner dem (Oberflächen-)Integral der Funktion und hat die Bedeutung, dass es ein Maß für die gesamte Helligkeit des Lichtpunktes ist. An dieser Stelle kann es problematisch werden, falls z.B. ein Lichtpunkt nicht vorhanden ist, die Lichtintensität überall null ist. Dann wäre auch das Integral null und der gesamte Ausdruck divergent. Dies wird im Python-Programm auch berücksichtigt, damit es zu keinem solchen Fehler kommt.
+
+
+
+\subsection{Kontrolle der Ergebnisse}
+
+Zur zwischenzeitigen Kontrolle der Ergebnisse wurde die berechneten Werte mit den von der Thorlabs-Software berechneten Schwerpunktskoordinaten gegen-gecheckt. Dabei ist augenscheinlich, dass bei unserer eigenen Berechnung genaue der Offset der Verschiebung zu Anfang auftaucht. Mit dessen Offset-Kompensation gleichen sich die Thorlabs Schwerpunkte mit den eigenen fast genau. Die Abweichung liegt, bis auf die Werte an dem Rand, bei ungefähr +-1 Pixel. Die Werte am Rand besitzen eine so große Abweichung, da bei ihnen die Intensität viel geringer ist, und somit auch schwieriger einen klaren Schwerpunkt zu bestimmen.
+\newline
+Bei weitergehender Verbesserung des Programms müsste noch überlegt werden, diese Randwerte nicht in die Berechnung einfließen zu lassen. So eine selbstständige Interpretation der Werte wurde in dem Python-Programm nicht durchgeführt. Beispielsweise könnten ungenaue Randwerte die Rückgabe "no Value" besitzen. Darauf wurde vor allem verzichtet, da die spätere Integration zur Rekonstruktion der Wellenfront dadurch erschwert werden würde.
+
+
+
+\begin{figure}[ht]
+	\begin{center}
+		
+	
+\begin{minipage}[t]{0.45\linewidth}
+		
+		
+		\includegraphics[width=8cm]{Bilder/551.png}
+		\caption{Fehler Linsenreihe X=13}
+		\label{bild_gesicht0}	
+		
+				\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\linewidth}	
+		\includegraphics[width=8cm]{Bilder/552.png}
+		\caption{Fehler Linsenreihe X=15}
+		\label{bild_gesicht11}
+	\end{minipage}
+
+
+
+	\end{center}
+\end{figure}
+
+
+
+
+\begin{figure}[ht]
+	\begin{center}
+		\begin{minipage}[t]{0.45\linewidth}	
+		\includegraphics[width=8cm]{Bilder/553.png}
+		\caption{Fehler Linsenreihe X=13 mit Offset-Kompensation}
+		\label{bild_gesicht12}	
+		
+	\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\linewidth}	
+		\includegraphics[width=8cm]{Bilder/554.png}
+		\caption{Fehler Linsenreihe X=15 mit Offset-Kompensation}
+		\label{bild_gesicht13}	
+\end{minipage}	
+	\end{center}
+\end{figure}
+
+
+
+
+
+\clearpage
+\section{Wellenfrontrekonstruktion} 
+
+\subsection{Wellenfrontrekonstruktion mit zonaler Integration}
+
+Die Wellenfront wurde rekonstruiert, indem aus den Verschiebungen der Intensitätsmaximas die Steigung der Wellenfront berechnet worden ist. Dazu sind aus dem Aufbau die folgenden geometrischen Beziehungen gegeben:
+\begin{eqnarray}
+	\tan(\alpha) =  \frac { \Delta z }{p_l}
+\end{eqnarray}
+sowie
+\begin{eqnarray}
+	\tan(\alpha) =  \frac { \delta y }{f_l}.
+\end{eqnarray}
+
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=8cm]{Bilder/334.png}
+		\caption{Geometrische Beziehungen Shack-Hartmann Sensor[1]}
+		\label{bild_gesicht14}	
+	\end{center}
+\end{figure}
+
+\noindent
+Durch Gleichsetzen und umformen erhält man so die Gleichung für die Steigung der Wellenfront $\Delta z $  an der Bestimmten Position der Mikrolinse.
+\begin{eqnarray}
+	\Delta z =  \delta y   \cdot   \frac { p_l }{f_l}
+\end{eqnarray}
+\noindent
+Die einzelnen Steigungen der Wellenfront gibt es in x sowie in y-Richtung. Zur Rekonstruktion der Wellenfront wurden die Steigungen aufsummiert. Dies geschah einmal für jede Richtung. 
+
+\begin{eqnarray}
+	S_x (x,y) =  \sum_{i=1}^{x} \Delta z_x (i,y)
+\end{eqnarray}
+
+\begin{eqnarray}
+	S_y (x,y) =  \sum_{i=1}^{y} \Delta z_y (x,i)
+\end{eqnarray}
+\noindent
+Die Wellenfront ergibt sich aus Addition der zwei Matrizen.
+\begin{eqnarray}
+W(x,y) = S_x (x,y) + S_y (x,y)
+\end{eqnarray}
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=6cm]{Bilder/22.png}
+		\caption{Oberfläche Wellenfront in µm}
+		\label{bild_gesicht15}	
+	\end{center}
+\end{figure}
+
+
+\noindent
+Hier ist die Wellenfront von Thorlabs zu sehen.
+
+\begin{figure}[ht]
+	\begin{center}
+		\includegraphics[width=6cm]{Bilder/332.png}
+		\caption{Oberfläche Wellenfront Thorlabs in µm}
+		\label{bild_gesicht16}	
+	\end{center}
+\end{figure}
+
+\subsection{Wellenfrontrekonstruktion mit modaler Integration}
+Text
+\subsection{Bestimmung des Krümmungsradius}
+
+Um den Krümmungsradius zu bestimmen wurde eine quadratische Kurvenanpassung durchgeführt. Diese ist eindimensional und ein Schnitt durch die Wellenfront in der Mitte. Es wurde die Reihe X=19 ausgewählt. Die Einheit ist in Meter.
+
+\begin{eqnarray}
+	f (x) =  -3,2776 x^2 + 0,0139 x + 10^{-5}
+\end{eqnarray}
+\noindent
+Dann wurde die kurvenangepasste Funktion zweimal differenziert.
+
+\begin{eqnarray}
+	f' (x) =  -6,5552 x + 0,0139
+\end{eqnarray}
+
+
+\begin{eqnarray}
+	f'' (x) =  -6,5552 
+\end{eqnarray}
+\noindent
+Das Ziel war, den Krümmungskreis am Maximum der Funktion zu bestimmen. Das Maximum der Funktion liegt an der Nullstelle der 1. Ableitung. 
+
+\begin{eqnarray}
+	x_m = 0,00212 
+\end{eqnarray}
+\noindent
+Der Krümmungsradius ergibt sich aus der Parametrisierung der Funktion.
+
+
+\begin{eqnarray}
+	r (x) =   |\frac{(1+f'(x)^2  ) ^\frac{3}{2}    } {f''(x)}|  
+\end{eqnarray}
+\noindent
+Setzt man die Werte ein, ergibt sich ein Krümmungsradius von
+
+
+\begin{eqnarray}
+	r (x_m) =  \mathbf{0,15573  m }
+\end{eqnarray}
+\noindent
+Der Wert von Thorlabs lag bei 
+
+
+\begin{eqnarray}
+	r (thorlabs) =  0,151906  m. 
+\end{eqnarray}
+\noindent
+Das entspricht einer Abweichung von 2,5 \%.
+
+
+
+\clearpage
+\section{Bemerkungen zum Python-Programm}
+\subsection{Allgemein}
+In diesem Abschnitt soll das selbst geschriebene Python-Programm zur Berechnung der Schwerpunktkoordinaten und der Wellenfront kurz vorgestellt werden. Dabei ist das Programm ausgelegt auf den WFS150 der Firma Thorlabs. Durch Veränderung der Variablen am Anfang kann es allerdings auch für weitere Wellenfrontsensoren mit einer anderen Anzahl an Linsen, oder einer anderen Brennweite der Linsen verwendet werden. Somit wäre es mit entsprechenden Änderungen allgemein benutzbar. Zur Benutzung werden die Module PIL, matplotlib und numpy benötigt. Diese müssen zusätzlich zu Python installiert werden. Generell wertet das Programm eine Spotfield-Bilddatei aus. Dazu muss sich das Spotfield als .JPG Datei in dem Ordnerverzeichnis von Python befinden. Beim Starten des Programms erfolgt eine Anzeige in der Benutzerkonsole, welches das aktuelle Ordnerverzeichnis ist. In diesen Ordner muss das Spotfield mit dem entsprechendem Namen im Programmcode kopiert werden. In diesem Fall ist der Name spmp.jpg. Der Ordner ist meist C:/Users/ oder C:/Users/Username/Python/PythonScripts oder C:/Users/Username/Documents. In diesem Ordner werden später auch die Ergebnisse gespeichert.
+\newline
+\newline
+Zunächst werden die Module geladen.
+
+
+\begin{lstlisting}{Name}
+import os
+print(os.getcwd())#Folder to import
+from PIL import Image
+from numpy import asarray
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime
+print(datetime.today())
+from mpl_toolkits import mplot3d
+\end{lstlisting}
+
+\clearpage
+Als nächstes folgt die Definition der Parameter spezifisch für den WFS-150 Wellenfrontsensor.
+
+
+\begin{lstlisting}{Name}
+"Thorlabs WFS-150 Konstanten"
+Pixelsize=4.65 # Pixel size in um (um = Mikrometer)
+Resolution=[1280,1024] 
+Lenslets=[39,31] # Number of Lenslets
+LensPitch = 150 # in um
+FocalLength = 5000 # in um (=5mm)
+\end{lstlisting}
+
+Nun werden leere Arrays erzeugt, in diese werden später die Ergebnisse geladen. $ia$ steht für die über Integration bestimmte Helligkeit eines Bereichs einer Linse. $lx$ sind die x-Werte der Schwerpunktskoordinaten. $ly$ sind die y-Werte der Schwerpunktskoordinaten. $Delta x/y array$ sind die Schwerpunktskoordinaten relativ zu dem jeweiligen Bereich der Linse, das heißt es sind die Verschiebungen in x und y Richtung von der Mittelpunktachse der Linse. Diese Werte sind bisher alle einheitenlos. Im weiteren folgen Arrays für die Umrechnung der Verschiebungen in Meter. Dann folgen die Arrays für die Wellenfrontsteigung $lz_x$ und $lz_y$ und schließlich für die Wellenfront selbst $WF$.
+
+
+\begin{lstlisting}{Name}
+"Define arrays"
+ia =                  np.empty([Lenslets[0], Lenslets[1]])
+lx =                  np.empty([Lenslets[0], Lenslets[1]])
+ly =                  np.empty([Lenslets[0], Lenslets[1]])
+Delta_x_array =       np.empty([Lenslets[0], Lenslets[1]])
+Delta_y_array =       np.empty([Lenslets[0], Lenslets[1]])
+Delta_x_array_in_m =  np.empty([Lenslets[0], Lenslets[1]])
+Delta_y_array_in_m =  np.empty([Lenslets[0], Lenslets[1]])
+lz_x =                np.empty([Lenslets[0], Lenslets[1]])
+lz_y =                np.empty([Lenslets[0], Lenslets[1]])
+WF_x =                np.empty([Lenslets[0], Lenslets[1]])
+WF_y =                np.empty([Lenslets[0], Lenslets[1]])
+WF =                  np.empty([Lenslets[0]-1, Lenslets[1]-1])
+\end{lstlisting}
+
+
+
+Im Folgenden wird ein leeres , schwarzes Bild generiert. Dann wird das Spotfield Bild geladen. Im weiteren werden dann die Schwerpunkte zusätzlich in einem Bild gespeichert, als weiße Punkte. So kann eine optische Kontrolle erfolgen. Denn die weißen Punkte, die die Schwerpunkte markieren müssten genau an den gleichen Stellen liegen, wie die Spots auf dem Spotfield.
+
+\begin{lstlisting}{Name}
+imageout = np.empty([Resolution[1], Resolution[0]])
+for i in range (0,Resolution[0]):
+for j in range (0,Resolution[1]):
+imageout[j,i]=0
+
+"Load the image"
+image = Image.open('spmp.jpg').convert('L')#convert to greyscale
+data = asarray(image)# convert image to numpy array
+print(type(data))
+print(data.shape)# summarize shape
+image2 = Image.fromarray(data)# create Pillow image
+\end{lstlisting}
+
+
+
+
+\clearpage
+\subsection{Schwerpunktberechnung}
+Hier wird die Integration zu Schwerpunktberechnung durchgeführt. Da es sich um ein zweidimensionales Integral handelt, wird eine verschachtelte for-Schleife benutzt, die äußere für das y-Integral und die innere für das x-Integral. Dann folgt eine Kontrolle, damit es nicht zu einer Division durch Null kommen kann. Und schließlich werden die Ergebnisse in einem Array gespeichert auf welches durch return zurückgegriffen wird.
+
+\begin{lstlisting}{Name}
+"Methode zur Integralen Schwerpunktberechnung in den Grenzen a&b"
+def integrate(b,a):
+via=0
+viia=0
+dva=0
+viax=0
+viiax=0
+dvax=0
+viay=0
+viiay=0
+dvay=0
+for i in range (a,a+32):
+viia=0
+viiay=0
+viiax=0
+for j in range (b,b+32):
+dva=data[i,j]
+viia+=dva
+dvay=data[i,j]*i
+viiay+=dvay
+dvax=data[i,j]*j
+viiax+=dvax
+via+=viia
+viay+=viiay
+viax+=viiax
+vol=via
+if(vol<0.1):#Divided by Zero Check
+vol=0.1
+sy=viay/vol
+sx=viax/vol#numpy transponiert die Matrix
+array = [0 for jjj in range(5)]  # N = size of list you want
+array[0]=vol
+array[1]=sx#-b-16
+array[2]=sy#-a-16
+array[3]=array[1]-b-16
+array[4]=array[2]-a-16
+return array
+\end{lstlisting}
+
+Diese Schwerpunktberechnung wird mehrfach durchgeführt, dafür ist dieser Teil da.
+
+
+\begin{lstlisting}{Name}
+"Main-Methode"
+a=15
+b=15
+load=0
+loadp=0
+for i in range (0,Lenslets[0]-1):
+b=15
+for j in range (0,Lenslets[1]-1):
+returns = integrate (a,b)
+ia[i,j] = returns [0]
+lx[i,j] = returns [1]
+ly[i,j] = returns [2]
+Delta_x_array[i,j]= returns [3]
+Delta_y_array[i,j]= returns [4]
+Delta_x_array_in_m[i,j]=returns [3]*Pixelsize
+Delta_y_array_in_m[i,j]=returns [4]*Pixelsize
+lz_x[i,j]       =(returns[3]*Pixelsize )*LensPitch/FocalLength
+lz_y[i,j]       =(returns[4]*Pixelsize )*LensPitch/FocalLength
+
+if (ia[i,j]>300):
+plt.scatter(lx[i,j],ly[i,j], color="red")
+#plt.scatter(lx[i,j]+a+16,ly[i,j]+b+16, color="red")
+load+=1
+if(round(load/11.5)>loadp):
+loadp=round(load/11.5)       
+print('Calculation . . . ', round(load/11.5),'%')    
+a_1=round(lx[i,j])
+a_2=round(ly[i,j])
+imageout[a_2,a_1]=254#matrix transponiert
+
+b+=32
+a+=32
+\end{lstlisting}
+
+
+
+
+
+Hier wird schließlich ein Scatter-Plot erzeugt, mit den Schwerpunkten.
+
+\begin{lstlisting}{Name}
+"Scatter-Plot"
+plt.title('Array mit Schwerpunktskoordinaten')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.axis('scaled')
+plt.colorbar()
+plt.show()
+\end{lstlisting}
+
+
+
+
+Hier wird das schon erwähnte Bild gespeichert.
+
+
+\begin{lstlisting}{Name}
+"Ergebnisse als Bild speichern"
+fft = imageout.astype(np.uint8)
+now = datetime.now()
+pil_image=Image.fromarray(fft)
+pil_image.show()
+pil_image.convert('RGB')
+date_time = now.strftime("%m-%d-%Y %H-%M-%S")
+pil_image.save("Results Points from "+str(date_time)+".png",
+				"PNG")
+\end{lstlisting}
+
+
+
+
+
+
+Hier werden die Werte in Arrays als Textdatei gespeichert.
+
+\begin{lstlisting}{Name}
+"Ergebnisse als Array speichern"
+print('Saving files.')
+np.savetxt("array_x from "+str(date_time)+".txt", lx)
+np.savetxt("array_y from "+str(date_time)+".txt", ly)
+np.savetxt("delta x from "+str(date_time)+".txt", Delta_x_array)
+np.savetxt("delta_y from "+str(date_time)+".txt", Delta_y_array)
+np.savetxt("delta x in um from "+str(date_time)+".txt",
+				Delta_x_array_in_m)
+np.savetxt("delta_y in um from "+str(date_time)+".txt",
+				Delta_y_array_in_m)
+\end{lstlisting}
+
+
+\clearpage
+
+
+
+\subsection{Wellenfrontberechnung}
+Nun folgt die Integration für die Rekonstruktion der Wellenfront.
+\begin{lstlisting}{Name}
+"Integration"
+for j in range (0,Lenslets[1]-1):
+WF_x[0,j]=lz_x[0,j]
+for i in range (1,Lenslets[0]-1):
+WF_x[i,j]=lz_x[i,j]+WF_x[i-1,j]
+
+
+for i in range (0,Lenslets[0]-1):
+WF_y[i,0]=lz_y[i,0]
+for j in range (1,Lenslets[1]-1):
+WF_y[i,j]=lz_y[i,j]+WF_y[i,j-1]
+
+
+for i in range (0,Lenslets[0]-2):
+for j in range (0,Lenslets[1]-2):
+WF[i,j] = WF_x[i,j] + WF_y[i,j]
+if WF [i,j]>=50:
+WF [i,j]=50
+print('Fehler')
+\end{lstlisting}
+Und zuletzt wird das Oberflächen-Diagramm erstellt.
+\begin{lstlisting}{Name}
+"Surface-Plot"
+Xg=np.linspace (1, Lenslets[1]-1, Lenslets[1]-1)
+Yg=np.linspace (1, Lenslets[0]-1, Lenslets[0]-1)
+XXg, YYg = np.meshgrid(Xg,Yg)
+fig = plt.figure()
+ax = plt.axes(projection='3d')
+ax.plot_surface(XXg, YYg, WF,cmap='viridis', edgecolor='none')
+ax.set_title('Surface plot Wellenfront in um')
+plt.show()
+
+print('Program finished. 100 %')
+\end{lstlisting}
+
+
+\clearpage
+\section{Fazit} 
+Hier steht das Fazit.
+\newline
+\section{Literatur} 
+
+[1] Operation Manual Thorlabs Instrumentation Optical Wavefront Sensor WFS150 / WFS150C \newline
+[2] WFS150-CatalogPage
+
+Papula, L, Mathematik für Ingenieure und Naturwissenschaftler Band 1, 2014, Springer Verlag: Wiesbaden.
+
+Vyas, A, et. al, Centroid Detection by Gaussian Pattern Matching in Adaptive Optics, Indian Institute of Astrophysics.
+
+
+
+
+\section{Anhang} 
+
+\end{document} 
