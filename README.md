@@ -6,4 +6,4 @@ Zernike: Programm für die Berechnung der ersten Zernikekoeffizienten
 
 spmp.jpg: Spotfield der Messung (wird zur Berechnung benötigt)
 
-Data: Ordner mit allen Messdaten und mit den Berechneten Werten
+Data: Ordner mit allen Messdaten und mit den berechneten Werten
