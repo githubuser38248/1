@@ -154,7 +154,6 @@ np.savetxt("delta x from "+str(date_time)+".txt", Delta_x_array)
 np.savetxt("delta_y from "+str(date_time)+".txt", Delta_y_array)
 np.savetxt("delta x in µm from "+str(date_time)+".txt", Delta_x_array_in_m)
 np.savetxt("delta_y in µm from "+str(date_time)+".txt", Delta_y_array_in_m)
-np.savetxt("Wellenfront in µm from "+str(date_time)+".txt", WF)
 ""
 
 
@@ -189,4 +188,5 @@ ax.plot_surface(XXg, YYg, WF,cmap='viridis', edgecolor='none')
 ax.set_title('Surface plot Wellenfront in µm')
 plt.show()
 
+np.savetxt("Wellenfront in µm from "+str(date_time)+".txt", WF)
 print('Program finished. 100 %')
